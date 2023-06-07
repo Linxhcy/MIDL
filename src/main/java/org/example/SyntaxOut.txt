@@ -1,0 +1,31 @@
+specification -> definition
+ definition -> type_decl
+  type_decl -> struct_type
+    struct_type -> is member_list
+     member_list_type -> type_spec declarators
+      type_spec -> base_type_spec
+       base_type_spec ->  integer_type
+        integer_type -> signed_int
+         signed_int ->short
+      declarators -> declarator
+       declarator -> simple_declarator
+        simple_declarator -> num or_expr
+          or_expr -> or_expr 
+           xor_expr -> and_expr 
+            and_expr -> shift_expr 
+             shift_expr -> add_expr >> add_expr 
+              add_expr -> mult_expr 
+               mult_expr -> unary_expr 
+                unary_expr -> literal
+                 literal -> 3
+              add_expr -> mult_expr 
+               mult_expr -> unary_expr * unary_expr 
+                unary_expr -> literal
+                 literal -> 1
+                unary_expr -> literal
+                 literal -> 2
+      type_spec -> base_type_spec
+       base_type_spec -> char
+      declarators -> declarator
+       declarator -> simple_declarator
+        simple_declarator -> num

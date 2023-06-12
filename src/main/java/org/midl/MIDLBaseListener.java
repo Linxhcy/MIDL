@@ -1,5 +1,5 @@
 // Generated from E:/StudySoftware/assignment/3_2/����ԭ��/����ԭ��ʵ����ҵ/MIDL/src/main/java/org/example\MIDL.g4 by ANTLR 4.12.0
-package org.example;
+package org.midl;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -17,9 +17,7 @@ public class MIDLBaseListener implements MIDLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSpecification(MIDLParser.SpecificationContext ctx) {
-		System.out.println(ctx.definition());
-	}
+	@Override public void enterSpecification(MIDLParser.SpecificationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -31,9 +29,7 @@ public class MIDLBaseListener implements MIDLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDefinition(MIDLParser.DefinitionContext ctx) {
-		System.out.println(ctx.type_decl());
-	}
+	@Override public void enterDefinition(MIDLParser.DefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -69,9 +65,7 @@ public class MIDLBaseListener implements MIDLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStruct_type(MIDLParser.Struct_typeContext ctx) {
-		System.out.println(ctx.ID());
-	}
+	@Override public void enterStruct_type(MIDLParser.Struct_typeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

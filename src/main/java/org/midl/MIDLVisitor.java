@@ -1,4 +1,5 @@
-package org.example;
+// Generated from E:/StudySoftware/assignment/3_2/����ԭ��/����ԭ��ʵ����ҵ/MIDL/src/main/java/org/example\MIDL.g4 by ANTLR 4.12.0
+package org.midl;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**

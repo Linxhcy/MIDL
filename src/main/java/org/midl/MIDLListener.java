@@ -1,5 +1,5 @@
-// Generated from E:/StudySoftware/assignment/3_2/编译原理/编译原理实验作业/MIDL/src/main/java/org/example\MIDL.g4 by ANTLR 4.12.0
-package org.example;
+// Generated from E:/StudySoftware/assignment/3_2/锟斤拷锟斤拷原锟斤拷/锟斤拷锟斤拷原锟斤拷实锟斤拷锟斤拷业/MIDL/src/main/java/org/example\MIDL.g4 by ANTLR 4.12.0
+package org.midl;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**

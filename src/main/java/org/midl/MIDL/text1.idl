@@ -1,3 +1,5 @@
-struct A{
-short a[4]=[10,12,45.34,’a’];
+module A{
+struct B{
+int8 C;
+};
 };

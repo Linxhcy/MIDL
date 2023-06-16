@@ -40,7 +40,7 @@ public class MIDLParser extends Parser {
 	}
 	public static final String[] ruleNames = makeRuleNames();
 
-	public static String[] makeLiteralNames() {
+	private static String[] makeLiteralNames() {
 		return new String[] {
 			null, "';'", "'module'", "'{'", "'}'", "'struct'", "'::'", "'char'", 
 			"'string'", "'boolean'", "'float'", "'double'", "'long double'", "'short'", 

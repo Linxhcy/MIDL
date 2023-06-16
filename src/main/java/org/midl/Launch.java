@@ -25,9 +25,12 @@ public class Launch {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         MIDLParser parser = new MIDLParser(tokens);
         v.visit(parser.specification());
+        v.printModules();
         v.Output(expr);
-        v.ShowError();
-        v.genCode();
+//        v.ShowError();
+//        ST st = new ST();
+//        st.setModules(v.getModules());
+//        st.genCode();
     }
     private static void processFile() {
         StringBuilder FileContext = new StringBuilder();

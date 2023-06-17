@@ -1,5 +1,7 @@
 module A{
-struct B{
-int8 C;
-};
+    struct B{
+        /*boolean F = TRU;*/
+        //boolean F = TRU;
+        int8 A=8.6;
+    };
 };

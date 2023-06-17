@@ -23,6 +23,7 @@ public class Module {
             ArrayList<Struct> StructList = this.structs.get(struct.getName());
             struct.setRight(false);
             StructList.add(struct);
+            this.structs.replace(struct.getName(),StructList);
         }
     }
 

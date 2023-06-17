@@ -14,7 +14,7 @@ public class ST {
     private static final String OUTFILE = System.getProperty("user.dir")+"\\src"+"\\main\\java\\org\\midl\\MIDL.cpp";
     private static final String INFILE = System.getProperty("user.dir")+"\\src"+"\\main\\java\\org\\midl\\MIDL.stg";
     private static final STGroup group = new STGroupFile(INFILE);
-    private StringBuilder CppOutput=new StringBuilder();
+    private final StringBuilder CppOutput=new StringBuilder();
     private HashMap<String, ArrayList<Module>> modules=new HashMap<>();
     public void genCode(){
         genDef();

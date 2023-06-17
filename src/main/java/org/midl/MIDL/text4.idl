@@ -1,0 +1,12 @@
+struct A{
+    short a='a';
+};
+struct A{
+    short a=100000;
+};
+struct A{
+    short a=15.24;
+};
+struct A{
+    short a[4]=[10,12,45.34,'a'];
+};

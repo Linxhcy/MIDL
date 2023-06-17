@@ -1,22 +1,5 @@
 grammar MIDL;
 
-fragment LETTER : [a-z]|[A-Z];
-fragment DIGIT : [0-9];
-fragment UNDERLINE : '_';
-ID :  LETTER(UNDERLINE?(LETTER|DIGIT))*;
-fragment INTEGER_TYPE_SUFFIX : 'l' | 'L';
-INTEGER : ([0] | [1-9] [0-9]*) INTEGER_TYPE_SUFFIX?;
-fragment EXPONENT: ('e' | 'E') ( '+' | '-' )? [0-9]+;
-fragment FLOAT_TYPE_SUFFIX:  'f' | 'F' | 'd' | 'D';
-FLOATING_PT: [0-9]+ '.' [0-9]*  EXPONENT?  FLOAT_TYPE_SUFFIX?
-   				|  '.' [0-9]+  EXPONENT?  FLOAT_TYPE_SUFFIX?
-   				|  [0-9]+  EXPONENT  FLOAT_TYPE_SUFFIX?
-   				|  [0-9]+  EXPONENT?  FLOAT_TYPE_SUFFIX;
-fragment ESCAPE_SEQUENCE :  '\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\' );
-CHAR : '\'' ( ESCAPE_SEQUENCE |  (~'\\' | ~'\'') ) '\'';
-STRING : '"' ( ESCAPE_SEQUENCE |  (~'\\' | ~'"') )* '"';
-BOOLEAN : 'TRUE' | 'true' | 'FALSE' | 'false';
-
 specification : definition definition* ;
 definition : (type_decl ';') | (module ';');
 module : 'module' ID '{' definition definition* '}';
@@ -48,8 +31,27 @@ shift_expr : add_expr ( ('>>' | '<<') add_expr )*;
 add_expr : mult_expr ( ('+' | '-') mult_expr )*;
 mult_expr : unary_expr ( ('*' |'/'|'%') unary_expr)*;
 unary_expr : ('-'| '+' | '~')? literal;
-literal : INTEGER | FLOATING_PT | CHAR | STRING | BOOLEAN;
+literal : INTEGER | FLOATING_PT | CHAR | STRING | BOOLEAN | OTHER | ID;//这里多加了一个Other和ID,用来对抗非法输入
+
+fragment LETTER : [a-z]|[A-Z];
+fragment DIGIT : [0-9];
+fragment UNDERLINE : '_';
+
+fragment INTEGER_TYPE_SUFFIX : 'l' | 'L';
+INTEGER : ([0] | [1-9] [0-9]*) INTEGER_TYPE_SUFFIX?;
+fragment EXPONENT: ('e' | 'E') ( '+' | '-' )? [0-9]+;
+fragment FLOAT_TYPE_SUFFIX:  'f' | 'F' | 'd' | 'D';
+FLOATING_PT: [0-9]+ '.' [0-9]*  EXPONENT?  FLOAT_TYPE_SUFFIX?
+   				|  '.' [0-9]+  EXPONENT?  FLOAT_TYPE_SUFFIX?
+   				|  [0-9]+  EXPONENT  FLOAT_TYPE_SUFFIX?
+   				|  [0-9]+  EXPONENT?  FLOAT_TYPE_SUFFIX;
+fragment ESCAPE_SEQUENCE :  '\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\' );
+BOOLEAN : 'TRUE' | 'true' | 'FALSE' | 'false';
+CHAR : '\'' ( ESCAPE_SEQUENCE |  (~'\\' | ~'\'') ) '\'';
+STRING : '"' ( ESCAPE_SEQUENCE |  (~'\\' | ~'"') )* '"';
+ID :  LETTER(UNDERLINE?(LETTER|DIGIT))*;//ID一定要放到最后面
+OTHER: UNDERLINE ID;//可以匹配不符合ID等的非法输入
 
 WS: (' ' | '\r' | '\t' | '\u000C' | '\n') -> channel (HIDDEN);
 COMMENT: '/*' .*? '*/' -> channel (HIDDEN);
-LINE_COMMENT: '//' ~ ('\n' | '\r')* '\r'? '\n' -> channel (HIDDEN);
+LINE_COMMENT: '//' .*? '\r'? '\n' -> channel (HIDDEN);

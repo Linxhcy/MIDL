@@ -5,6 +5,7 @@ public class Declaration {
     private String name;
     private String type;
     private Object value;
+    private int isArray=-1;//判断是否是数组,-1表示不是,-2表示是,用于标识,否则表示数组大小
     public Declaration(String name) {
         this.name = name;
     }
@@ -39,5 +40,21 @@ public class Declaration {
 
     public void setValue(Object value) {
         this.value = value;
+    }
+
+    public int getIsRight() {
+        return isRight;
+    }
+
+    public void setIsRight(int isRight) {
+        this.isRight = isRight;
+    }
+
+    public int getIsArray() {
+        return isArray;
+    }
+
+    public void setIsArray(int isArray) {
+        this.isArray = isArray;
     }
 }

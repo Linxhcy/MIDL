@@ -23,6 +23,7 @@ public class Struct {
             ArrayList<Declaration> DeclarationList = this.declarations.get(declaration.getName());
             declaration.setRight(2);
             DeclarationList.add(declaration);
+            this.declarations.replace(declaration.getName(),DeclarationList);
         }
     }
 

@@ -4,9 +4,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -26,27 +24,38 @@ public class Launch {
         MIDLParser parser = new MIDLParser(tokens);
         v.visit(parser.specification());
         v.printModules();
-        v.Output(expr);
-//        v.ShowError();
-//        ST st = new ST();
-//        st.setModules(v.getModules());
-//        st.genCode();
+        v.outputMessage(expr);
+        ST st = new ST();
+        st.setModules(v.getModules());
+        st.genCode();
     }
     private static void processFile() {
-        StringBuilder FileContext = new StringBuilder();
         for(File f:FileList){
+            StringBuilder FileContext = new StringBuilder();
             try(FileReader fis=new FileReader(f);
                 BufferedReader br = new BufferedReader(fis)
             ){
                 String s;
                 while ((s=br.readLine())!=null){
-                    FileContext.append(s);
+                    FileContext.append(s).append("\n");
                 }
                 run(FileContext.toString());
-                FileContext.append(br.readLine());
             }catch (Exception e){
                 e.printStackTrace();
             }
+//            try(FileInputStream fis=new FileInputStream(f);
+//                BufferedInputStream bis = new BufferedInputStream(fis)
+//            ){
+//                byte[] bytes = new byte[5];
+//                int len;// 记录每次读取的字节的个数
+//                while ((len = bis.read(bytes)) != -1){
+//                    String str = new String(bytes, 0, len);
+//                    FileContext.append(str);
+//                }
+//                run(FileContext.toString());
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
         }
     }
     private static void getFileList() {

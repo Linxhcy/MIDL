@@ -5,6 +5,6 @@ module space1{
 };
 module space2{
     struct A{
-        space1::B::C b;
+        space1::B b;
     };
 };

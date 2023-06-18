@@ -1,0 +1,83 @@
+```mermaid
+stateDiagram
+specification --> definition
+ definition --> module
+  module -->m definition definition
+ definition --> type_decl
+  type_decl --> struct_type
+    struct_type --> u
+    struct_type --> member_list
+     member_list --> type_spec
+     member_list --> declarators
+     member_list --> type_spec
+     member_list --> declarators
+      type_spec --> base_type_spec
+       base_type_spec -->  integer_type
+        integer_type --> signed_int
+         signed_int -->int8
+      declarators --> declarator
+       declarator --> simple_declarator
+        simple_declarator --> A
+        simple_declarator --> or_expr
+          or_expr --> xor_expr 
+           xor_expr --> and_expr 
+            and_expr --> shift_expr 
+             shift_expr --> add_expr 
+              add_expr --> mult_expr 
+               mult_expr --> unary_expr 
+                unary_expr --> literal
+                 literal --> 8
+      type_spec --> base_type_spec
+       base_type_spec -->  integer_type
+        integer_type --> signed_int
+         signed_int -->int16
+      declarators --> declarator
+       declarator --> simple_declarator
+        simple_declarator --> B
+        simple_declarator --> or_expr
+          or_expr --> xor_expr 
+           xor_expr --> and_expr 
+            and_expr --> shift_expr 
+             shift_expr --> add_expr 
+              add_expr --> mult_expr 
+               mult_expr --> unary_expr 
+                unary_expr --> literal
+                 literal --> 9
+ definition --> type_decl
+  type_decl --> struct_type
+    struct_type --> x
+    struct_type --> member_list
+     member_list --> type_spec
+     member_list --> declarators
+     member_list --> type_spec
+     member_list --> declarators
+      type_spec --> base_type_spec
+       base_type_spec --> char
+      declarators --> declarator
+       declarator --> simple_declarator
+        simple_declarator --> C
+        simple_declarator --> or_expr
+          or_expr --> xor_expr 
+           xor_expr --> and_expr 
+            and_expr --> shift_expr 
+             shift_expr --> add_expr 
+              add_expr --> mult_expr 
+               mult_expr --> unary_expr 
+                unary_expr --> literal
+                 literal --> 'a'
+      type_spec --> base_type_spec
+       base_type_spec --> string
+      declarators --> declarator
+       declarator --> simple_declarator
+        simple_declarator --> D
+        simple_declarator --> or_expr
+          or_expr --> xor_expr 
+           xor_expr --> and_expr 
+            and_expr --> shift_expr 
+             shift_expr --> add_expr 
+              add_expr --> mult_expr 
+               mult_expr --> unary_expr 
+                unary_expr --> literal
+                 literal --> "a"
+
+```

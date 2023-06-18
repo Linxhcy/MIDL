@@ -1,0 +1,10 @@
+module m{
+    struct u{
+        int8 A=8;
+        int16 B=9;
+    };
+    struct x{
+        char C='a';
+        string D="a";
+    };
+};

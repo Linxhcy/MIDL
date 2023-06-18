@@ -1,0 +1,78 @@
+genDef(typename,includes,HeaderContext) ::=<<
+<HeaderContext>
+#ifndef <typename>_h
+#define <typename>_h
+
+#ifndef rti_me_cpp_hxx
+#include "rti_me_cpp.hxx"
+#endif
+
+#ifdef NDDS_USER_DLL_EXPORT
+#if (defined(RTI_WIN32) || defined(RTI_WINCE))
+/* If the code is building on Windows, start exporting symbols. */
+#undef NDDSUSERDllExport
+#define NDDSUSERDllExport __declspec(dllexport)
+#endif
+#else
+#undef NDDSUSERDllExport
+#define NDDSUSERDllExport
+#endif
+
+
+>>
+genMain(msd) ::=<<
+<msd:{x|
+struct <x.module_struct>Seq;
+class <x.module_struct>TypeSupport;
+class <x.module_struct>DataWriter;
+class <x.module_struct>DataReader;
+
+
+class <x.module_struct>
+{
+  public:
+    typedef struct <x.module_struct>Seq Seq;
+    typedef <x.module_struct>TypeSupport TypeSupport;
+    typedef <x.module_struct>DataWriter DataWriter;
+    typedef <x.module_struct>DataReader DataReader;
+
+    <x.declarations:{y|<y.type><y.value>};separator="\n">
+
+\}
+
+extern const char *<x.module_struct>TYPENAME;
+
+REDA_DEFINE_SEQUENCE_STRUCT(<x.module_struct>Seq, <x.module_struct>);
+
+REDA_DEFINE_SEQUENCE_IN_C(<x.module_struct>Seq, <x.module_struct>);
+
+NDDSUSERDllExport extern RTI_BOOL
+<x.module_struct>_initialize(<x.module_struct>* sample)
+{
+    <x.declarations:{y|
+    CDR_Primitive_init_<y.type>(&sample-><y.name>);
+    }>
+    return RTI_TRUE;
+\}
+
+NDDSUSERDllExport extern RTI_BOOL
+<x.module_struct>_finalize(<x.module_struct>* sample)
+{
+    UNUSED_ARG(sample);
+    return RTI_TRUE;
+\}
+
+
+#ifdef NDDS_USER_DLL_EXPORT
+#if (defined(RTI_WIN32) || defined(RTI_WINCE))
+/* If the code is building on Windows, stop exporting symbols. */
+#undef NDDSUSERDllExport
+#define NDDSUSERDllExport
+#endif
+#endif
+
+#endif /* struct_nest */
+
+}
+;separator="\n">
+>>

@@ -13,7 +13,7 @@ public class MyVisitor extends MIDLBaseVisitor<Object> {
     private boolean isRight=false;
     private final StringBuilder TypeErrorMessage = new StringBuilder();
     private final StringBuilder NameErrorMessage = new StringBuilder();
-    private final StringBuilder output = new StringBuilder();
+    private final StringBuilder AST = new StringBuilder();
     //以下用于类型判断
 //    private final ArrayList<String> ElementAndTypeAndValue = new ArrayList<>();//用”元素名 元素类型 值“来存储
 //    private final ArrayList<String> ErrorType = new ArrayList<>();
@@ -54,8 +54,10 @@ public class MyVisitor extends MIDLBaseVisitor<Object> {
             ModuleList.add(module);
         }
     }
-
-    public void outputMessage(String expr) throws InterruptedException {
+    public StringBuilder getAST() {
+        return AST;
+    }
+    public void genResult(String expr) throws InterruptedException {
         //打印输出到SyntaxOut.txt
 //        File f = new File(System.getProperty("user.dir")+"\\src"+"\\main\\java\\org\\example\\SyntaxOut.txt");
 //        try(FileOutputStream fos = new FileOutputStream(f)){
@@ -65,13 +67,17 @@ public class MyVisitor extends MIDLBaseVisitor<Object> {
 //        }
 //        System.out.println(f);
 //        System.out.println("input:\n" + expr);
-        if(this.NameErrorMessage.toString().equals("")&&this.TypeErrorMessage.toString().equals("")){
-
-        }
-        System.out.println(output);
-        System.out.println(this.TypeErrorMessage);
         CheckName();
-        System.out.println(this.NameErrorMessage);
+        if(this.NameErrorMessage.toString().equals("")&&this.TypeErrorMessage.toString().equals("")){
+            this.isRight=true;
+        }
+        if(!this.isRight){
+            System.out.println(this.TypeErrorMessage);
+            System.out.println(this.NameErrorMessage);
+            System.out.println("\n");
+        }
+//        System.out.println(AST);
+
     }
 
     @Override
@@ -81,59 +87,59 @@ public class MyVisitor extends MIDLBaseVisitor<Object> {
 
     @Override
     public Object visitSpecification(MIDLParser.SpecificationContext ctx) {
-        this.output.append("specification ->");
+        this.AST.append("specification -->");
         int i = 0;
         while (ctx.definition(i) != null) {
-            this.output.append(" definition");
+            this.AST.append(" definition");
             i++;
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitSpecification(ctx);
     }
 
     @Override
     public Object visitDefinition(MIDLParser.DefinitionContext ctx) {
-        this.output.append(" definition ->");
+        this.AST.append(" definition -->");
         int i = 0, j = 0;
         if (ctx.type_decl() != null) {
-            this.output.append(" type_decl");
+            this.AST.append(" type_decl");
         }
         if (ctx.module() != null) {
-            this.output.append(" module");
+            this.AST.append(" module");
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitDefinition(ctx);
     }
 
     @Override
     public Object visitModule(MIDLParser.ModuleContext ctx) {
 //        this.HasModule=true;
-        this.output.append("  module ->");
-        this.output.append(ctx.ID());
+        this.AST.append("  module -->");
+        this.AST.append(ctx.ID());
         //建立新temp
         this.ModuleTemp = new Module(ctx.ID().toString());
         for (int i = 0; ctx.definition(i) != null; i++) {
             this.StructCounter++;
-            this.output.append(" definition");
+            this.AST.append(" definition");
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitModule(ctx);
     }
 
     @Override
     public Object visitType_decl(MIDLParser.Type_declContext ctx) {
-        this.output.append("  type_decl ->");
+        this.AST.append("  type_decl -->");
         //不定义module，给与默认module
         if (this.ModuleTemp == null) {
             this.ModuleTemp = new Module("");
             this.StructCounter = 1;
         }
         if (ctx.struct_type() != null) {
-            this.output.append(" struct_type");
+            this.AST.append(" struct_type");
         } else {
             //这里到叶子了
             this.StructCounter--;
-            this.output.append(" ").append(ctx.ID());
+            this.AST.append(" ").append(ctx.ID());
 //            checkStructName(ctx);
             this.StructTemp = new Struct(ctx.ID().toString());
             this.ModuleTemp.addStruct(this.StructTemp);
@@ -142,26 +148,25 @@ public class MyVisitor extends MIDLBaseVisitor<Object> {
 ////                this.ModuleTemp=null;
 //            }
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitType_decl(ctx);
     }
 
     @Override
     public Object visitStruct_type(MIDLParser.Struct_typeContext ctx) {
         this.StructCounter--;
-        this.output.append("    struct_type ->");
-        this.output.append(" ").append(ctx.ID());
+        this.AST.append("    struct_type --> ").append(ctx.ID()).append("\n");
         this.StructTemp = new Struct(ctx.ID().toString());
 //        this.ModuleTemp.addStruct(this.StructTemp);
 //        checkStructName(ctx);
-        this.output.append(" member_list");
-        this.output.append("\n");
+        this.AST.append("    struct_type --> member_list");
+        this.AST.append("\n");
         return super.visitStruct_type(ctx);
     }
 
     @Override
     public Object visitMember_list(MIDLParser.Member_listContext ctx) {
-        this.output.append("     member_list ->");
+//        this.AST.append("     member_list -->");
         if (ctx.type_spec(0) == null) {
             this.ModuleTemp.addStruct(this.StructTemp);
             if (this.StructCounter == 0 && this.DeclarationCounter == 0) {
@@ -169,31 +174,31 @@ public class MyVisitor extends MIDLBaseVisitor<Object> {
             }
         }
         for (int i = 0; ctx.type_spec(i) != null; i++) {
-            this.output.append(" {type_spec declarators}");
+            this.AST.append("     member_list --> type_spec\n");
+            this.AST.append("     member_list --> declarators\n");
             this.DeclarationCounter++;
         }
-        this.output.append("\n");
         return super.visitMember_list(ctx);
     }
 
     @Override
     public Object visitType_spec(MIDLParser.Type_specContext ctx) {
-        this.output.append("      type_spec ->");
+        this.AST.append("      type_spec -->");
         if (ctx.scoped_name() != null) {
-            this.output.append(" scoped_name");
+            this.AST.append(" scoped_name");
         } else if (ctx.base_type_spec() != null) {
-            this.output.append(" base_type_spec");
+            this.AST.append(" base_type_spec");
         } else {
-            this.output.append(" struct_type");
+            this.AST.append(" struct_type");
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitType_spec(ctx);
     }
 
     @Override
     public Object visitScoped_name(MIDLParser.Scoped_nameContext ctx) {
         boolean isDefined=false;//用于标记是否已定义
-        this.output.append("       scoped_name ->");
+        this.AST.append("       scoped_name -->");
         //能visit到这说明不是基本型了，要验证是否已定义
         //先检查本module是否已定义,ctx.ID(0)代表已定义的struct::id
         if (this.ModuleTemp.getStructs().get(ctx.ID(0).toString()) != null) {
@@ -220,104 +225,109 @@ public class MyVisitor extends MIDLBaseVisitor<Object> {
             }
         }
         if(isDefined){
-            this.output.append(" ").append(ctx.ID(0));
-            this.DeclarationTemp.setType(ctx.ID().toString());
+            this.AST.append(" ").append(ctx.ID(0));
+            StringBuilder type= new StringBuilder();
+            for(int i=0;ctx.ID(i)!=null;i++){
+                type.append(ctx.ID(i));
+                if(ctx.ID(i+1)!=null){
+                    type.append("::");
+                }
+            }
+            this.TypeTemp=type.toString();
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitScoped_name(ctx);
     }
 
     @Override
     public Object visitBase_type_spec(MIDLParser.Base_type_specContext ctx) {
-        this.output.append("       base_type_spec -> ");
+        this.AST.append("       base_type_spec --> ");
         if (ctx.floating_pt_type() != null) {
-            this.output.append(" floating_pt_type");
+            this.AST.append(" floating_pt_type");
         } else if (ctx.integer_type() != null) {
-            this.output.append(" integer_type");
+            this.AST.append(" integer_type");
         } else {
             this.TypeTemp = ctx.getChild(0).toString();
-            this.output.append(ctx.getChild(0));
+            this.AST.append(ctx.getChild(0));
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitBase_type_spec(ctx);
     }
 
     @Override
     public Object visitFloating_pt_type(MIDLParser.Floating_pt_typeContext ctx) {
-        this.output.append("        floating_pt_type ->");
-        this.output.append(ctx.getChild(0).toString());
-        this.output.append("\n");
+        this.AST.append("        floating_pt_type -->");
+        this.AST.append(ctx.getChild(0).toString());
+        this.AST.append("\n");
         this.TypeTemp = ctx.getChild(0).toString();
         return super.visitFloating_pt_type(ctx);
     }
 
     @Override
     public Object visitInteger_type(MIDLParser.Integer_typeContext ctx) {
-        this.output.append("        integer_type ->");
+        this.AST.append("        integer_type -->");
         if (ctx.signed_int() != null) {
-            this.output.append(" signed_int");
+            this.AST.append(" signed_int");
         } else if (ctx.unsigned_int() != null) {
-            this.output.append(" unsigned_int");
+            this.AST.append(" unsigned_int");
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitInteger_type(ctx);
     }
 
     @Override
     public Object visitSigned_int(MIDLParser.Signed_intContext ctx) {
-        this.output.append("         signed_int ->");
-        this.output.append(ctx.getChild(0));
+        this.AST.append("         signed_int -->");
+        this.AST.append(ctx.getChild(0));
         this.TypeTemp = ctx.getChild(0).toString();
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitSigned_int(ctx);
     }
 
     @Override
     public Object visitUnsigned_int(MIDLParser.Unsigned_intContext ctx) {
-        this.output.append("         unsigned_int ->");
-        this.output.append(ctx.getChild(0).toString());
-        this.output.append("\n");
+        this.AST.append("         unsigned_int -->");
+        this.AST.append(ctx.getChild(0).toString());
+        this.AST.append("\n");
         this.TypeTemp = ctx.getChild(0).toString();
         return super.visitUnsigned_int(ctx);
     }
 
     @Override
     public Object visitDeclarators(MIDLParser.DeclaratorsContext ctx) {
-        this.output.append("      declarators ->");
+        this.AST.append("      declarators -->");
         int i = 0;
         while (ctx.declarator(i) != null) {
-            this.output.append(" declarator");
+            this.AST.append(" declarator");
             i++;
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitDeclarators(ctx);
     }
 
     @Override
     public Object visitDeclarator(MIDLParser.DeclaratorContext ctx) {
-        this.output.append("       declarator ->");
+        this.AST.append("       declarator -->");
         if (ctx.simple_declarator() != null) {
-            this.output.append(" simple_declarator");
+            this.AST.append(" simple_declarator");
         } else {
-            this.output.append(" array_declarator");
+            this.AST.append(" array_declarator");
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitDeclarator(ctx);
     }
 
     @Override
     public Object visitSimple_declarator(MIDLParser.Simple_declaratorContext ctx) {
-        this.output.append("        simple_declarator ->");
+        this.AST.append("        simple_declarator -->");
         this.DeclarationTemp = new Declaration(ctx.ID().toString());
         this.DeclarationTemp.setType(TypeTemp);
 //        this.StructTemp.addDeclaration(this.DeclarationTemp);
 //        checkScopedName(ctx);
-        this.output.append(" ").append(ctx.ID());
+        this.AST.append(" ").append(ctx.ID()+"\n");
         if (ctx.or_expr() != null) {
-            this.output.append(" or_expr");
+            this.AST.append("        simple_declarator --> or_expr").append("\n");
         }
-        this.output.append("\n");
-
         if (ctx.or_expr() == null) {//这里到叶子了
             this.StructTemp.addDeclaration(this.DeclarationTemp);
             this.DeclarationCounter--;
@@ -335,124 +345,124 @@ public class MyVisitor extends MIDLBaseVisitor<Object> {
 
     @Override
     public Object visitArray_declarator(MIDLParser.Array_declaratorContext ctx) {
-        this.output.append("        array_declarator ->");
-        this.output.append(" ").append(ctx.ID()).append(" or_expr");
+        this.AST.append("        array_declarator -->");
+        this.AST.append(" ").append(ctx.ID()).append(" or_expr");
 //        checkScopedName(ctx);
         this.DeclarationTemp = new Declaration(ctx.ID().toString());
         this.DeclarationTemp.setType(TypeTemp);
         ArrayTemp = new ArrayList<>();
         if (ctx.exp_list() != null) {
-            this.output.append(" exp_list");
+            this.AST.append(" exp_list");
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitArray_declarator(ctx);
     }
 
     @Override
     public Object visitExp_list(MIDLParser.Exp_listContext ctx) {
-        this.output.append("         exp_list -> or_expr ");
+        this.AST.append("         exp_list --> or_expr ");
         int i = 0;
         while (ctx.or_expr(i) != null) {
-            this.output.append(", or_expr");
+            this.AST.append(", or_expr");
             i++;
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitExp_list(ctx);
     }
 
     @Override
     public Object visitOr_expr(MIDLParser.Or_exprContext ctx) {
-        this.output.append("          or_expr -> ");
+        this.AST.append("          or_expr --> ");
         int i = 0;
         while (ctx.xor_expr(i) != null) {
-            this.output.append("or_expr ");
+            this.AST.append("xor_expr ");
             if (ctx.xor_expr(i + 1) != null) {
-                this.output.append("| ");
+                this.AST.append("| ");
             }
             i++;
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitOr_expr(ctx);
     }
 
     @Override
     public Object visitXor_expr(MIDLParser.Xor_exprContext ctx) {
-        this.output.append("           xor_expr -> ");
+        this.AST.append("           xor_expr --> ");
         int i = 0;
         while (ctx.and_expr(i) != null) {
-            this.output.append("and_expr ");
+            this.AST.append("and_expr ");
             if (ctx.and_expr(i + 1) != null) {
-                this.output.append("^ ");
+                this.AST.append("^ ");
             }
             i++;
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitXor_expr(ctx);
     }
 
     @Override
     public Object visitAnd_expr(MIDLParser.And_exprContext ctx) {
-        this.output.append("            and_expr -> ");
+        this.AST.append("            and_expr --> ");
         int i = 0;
         while (ctx.shift_expr(i) != null) {
-            this.output.append("shift_expr ");
+            this.AST.append("shift_expr ");
             if (ctx.shift_expr(i + 1) != null) {
-                this.output.append("& ");
+                this.AST.append("& ");
             }
             i++;
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitAnd_expr(ctx);
     }
 
     @Override
     public Object visitShift_expr(MIDLParser.Shift_exprContext ctx) {
-        this.output.append("             shift_expr -> ");
+        this.AST.append("             shift_expr --> ");
         int i = 0;
         while (ctx.add_expr(i) != null) {
-            this.output.append("add_expr ");
+            this.AST.append("add_expr ");
             if (ctx.add_expr(i + 1) != null) {
-                this.output.append(ctx.getChild(1).toString() + " ");
+                this.AST.append(ctx.getChild(1).toString() + " ");
             }
             i++;
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitShift_expr(ctx);
     }
 
     @Override
     public Object visitAdd_expr(MIDLParser.Add_exprContext ctx) {
-        this.output.append("              add_expr -> ");
+        this.AST.append("              add_expr --> ");
         int i = 0;
         while (ctx.mult_expr(i) != null) {
-            this.output.append("mult_expr ");
+            this.AST.append("mult_expr ");
             if (ctx.mult_expr(i + 1) != null) {
-                this.output.append(ctx.getChild(1).toString() + " ");
+                this.AST.append(ctx.getChild(1).toString() + " ");
             }
             i++;
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitAdd_expr(ctx);
     }
 
     @Override
     public Object visitMult_expr(MIDLParser.Mult_exprContext ctx) {
-        this.output.append("               mult_expr -> ");
+        this.AST.append("               mult_expr --> ");
         int i = 0;
         while (ctx.unary_expr(i) != null) {
-            this.output.append("unary_expr ");
+            this.AST.append("unary_expr ");
             if (ctx.unary_expr(i + 1) != null) {
-                this.output.append(ctx.getChild(1).toString() + " ");
+                this.AST.append(ctx.getChild(1).toString() + " ");
             }
             i++;
         }
-        this.output.append("\n");
+        this.AST.append("\n");
         return super.visitMult_expr(ctx);
     }
 
     @Override
     public Object visitUnary_expr(MIDLParser.Unary_exprContext ctx) {
-        this.output.append("                unary_expr ->");
+        this.AST.append("                unary_expr -->");
         if (ctx.getChild(0) != null && (ctx.getChild(0).toString().equals("-")
                 || ctx.getChild(0).toString().equals("~"))) {
             this.NegativeType = ctx.getChild(0).toString();
@@ -460,19 +470,19 @@ public class MyVisitor extends MIDLBaseVisitor<Object> {
             this.NegativeType = "";
         }
         if (ctx.getChild(1) != null) {
-            this.output.append(" " + ctx.getChild(0));
+            this.AST.append(" " + ctx.getChild(0));
         }
-        this.output.append(" literal");
-        this.output.append("\n");
+        this.AST.append(" literal");
+        this.AST.append("\n");
         return super.visitUnary_expr(ctx);
     }
 
     //为definition赋值并检查差错
     @Override
     public Object visitLiteral(MIDLParser.LiteralContext ctx) {
-        this.output.append("                 literal -> ");
-        this.output.append(ctx.getChild(0));
-        this.output.append("\n");
+        this.AST.append("                 literal --> ");
+        this.AST.append(ctx.getChild(0));
+        this.AST.append("\n");
         if (ctx.ID() != null || ctx.OTHER() != null) {
             TypeErrorMessage.append("无法识别" + ctx.ID().toString() + "\n");
         }
@@ -649,7 +659,8 @@ public class MyVisitor extends MIDLBaseVisitor<Object> {
                         int I = Integer.parseInt(V.toString());
 //                    System.out.println(I);
                         if (I < -32768 || I > 32767) {//溢出变复数
-                            this.TypeErrorMessage.append(E + "存在溢出错误," + T + "不可赋值为" + I + "\n");
+                            this.TypeErrorMessage.append(this.ModuleTemp.getName()+"::"+
+                                    this.StructTemp.getName()+"::"+E + "存在溢出错误," + T + "不可赋值为" + I + "\n");
                             declaration.setIsRight(4);
                         }
                     }
@@ -673,7 +684,8 @@ public class MyVisitor extends MIDLBaseVisitor<Object> {
                             if (T.equals("short")) {
                                 int I = Integer.parseInt(s.toString());
                                 if (I < -32768 || I > 32767) {//溢出变复数
-                                    this.TypeErrorMessage.append(E + "存在溢出错误," + T + "[]不可赋值为" + I + "\n");
+                                    this.TypeErrorMessage.append(this.ModuleTemp.getName()+"::"+
+                                            this.StructTemp.getName()+"::"+E + "存在溢出错误," + T + "[]不可赋值为" + I + "\n");
                                     declaration.setIsRight(4);
                                 }
                             }
@@ -693,9 +705,11 @@ public class MyVisitor extends MIDLBaseVisitor<Object> {
 //                    this.TypeError=true;
 //                }
                 if (V instanceof ArrayList<?>) {
-                    this.TypeErrorMessage.append(E + "存在类型错误," + T + "[]不可赋值为" + V + "\n");
+                    this.TypeErrorMessage.append(this.ModuleTemp.getName()+"::"+
+                            this.StructTemp.getName()+"::"+E + "存在类型错误," + T + "[]不可赋值为" + V + "\n");
                 } else {
-                    this.TypeErrorMessage.append(E + "存在类型错误," + T + "不可赋值为" + V + "\n");
+                    this.TypeErrorMessage.append(this.ModuleTemp.getName()+"::"+
+                            this.StructTemp.getName()+"::"+E + "存在类型错误," + T + "不可赋值为" + V + "\n");
                 }
                 declaration.setIsRight(4);
             }
